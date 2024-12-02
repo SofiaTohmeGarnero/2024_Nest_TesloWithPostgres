@@ -9,6 +9,10 @@ import {
   MinLength,
 } from 'class-validator';
 
+/** Asi es como recibirá el body el endpoint, aqui por ejemplo
+ *  - tags es opcional, aunque en la base de datos es obligatorio (por eso en la entity le colocamos un valor por defecto si no llega en el body)
+ *  - slug es opcional, aunque en la base de datos es obligatorio y como no le colocamos un valor por defecto (pq debe ser unico) usamos la fnc beforeInsert para asegurrarnos que exista y sea conforme lo que necesitamos
+ * */
 export class CreateProductDto {
   @IsString()
   @MinLength(1)
@@ -38,4 +42,9 @@ export class CreateProductDto {
 
   @IsIn(['men', 'women', 'kid', 'unisex'])
   gender: string;
+
+  @IsString({ each: true })
+  @IsArray()
+  @IsOptional()
+  tags?: string[];
 }
