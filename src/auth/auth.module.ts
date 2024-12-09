@@ -6,26 +6,29 @@ import { AuthController } from './auth.controller';
 import { User } from './entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, JwtStrategy],
   imports: [
+    ConfigModule,
+
     TypeOrmModule.forFeature([User]),
 
-    PassportModule.register({defaultStrategy: 'jwt'}),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
 
     JwtModule.registerAsync({
-      imports: [ ConfigModule ],
-      inject: [ ConfigService ],
+      imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {
           secret: configService.get('JWT_SECRET'), //usamos el modulo de configService, pero tmb funcionaría con la var de entorno de manera directa (process.env.JWT_SECRET)
-          signOptions:{
-            expiresIn: '2h'
-          }
-        }
-      }
+          signOptions: {
+            expiresIn: '2h',
+          },
+        };
+      },
     }),
 
     /*     
@@ -42,6 +45,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }) 
     */
   ],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, JwtStrategy, PassportModule, JwtModule],
 })
 export class AuthModule {}
