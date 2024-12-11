@@ -1,7 +1,20 @@
-import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  Req,
+  Headers,
+  SetMetadata,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { AuthGuard } from '@nestjs/passport';
+import { GetUser, RawHeaders } from './decorators';
+import { User } from './entities/user.entity';
+import { IncomingHttpHeaders } from 'http';
+import { UserRoleGuard } from './guards/user-role.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -23,7 +36,32 @@ export class AuthController {
   // 3. send
   @Get('private')
   @UseGuards(AuthGuard()) //con estos decoradores hago privada la ruta
-  testingPrivateRoute() {
-    return 'Hola accediste a una ruta privada';
+  testingPrivateRoute(
+    @Req() request: Express.Request, //no es muy sugar la sintaxis pero puedo obtener todo lo que viene de la request, incluso el user como: const {user} = request
+    @GetUser() user: User,
+    @GetUser('email') userEmail: string, //el ('email') es la data que recibe el decorator
+    //para usar el decorador @GetUser debo usar @UseGuards(AuthGuard()) que hace la ruta privada y nos obliga a que le pasemos un token y con eso la request identifica el usuario
+
+    @RawHeaders() rawHeaders: string[],
+    @Headers() headers: IncomingHttpHeaders,
+  ) {
+    return {
+      message: 'Hola accediste a una ruta privada',
+      user,
+      userEmail,
+      rawHeaders,
+      headers,
+    };
+  }
+
+  @Get('private2')
+  @SetMetadata('roles', ['admin', 'super-user'])
+  //@RoleProtected( ValidRoles.superUser, ValidRoles.admin )
+  @UseGuards(AuthGuard(), UserRoleGuard)
+  privateRoute2(@GetUser() user: User) {
+    return {
+      ok: true,
+      user,
+    };
   }
 }
