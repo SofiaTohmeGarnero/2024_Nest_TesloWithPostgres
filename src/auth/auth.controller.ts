@@ -11,7 +11,7 @@ import {
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { AuthGuard } from '@nestjs/passport';
-import { GetUser, RawHeaders, RoleProtected } from './decorators';
+import { Auth, GetUser, RawHeaders, RoleProtected } from './decorators';
 import { User } from './entities/user.entity';
 import { IncomingHttpHeaders } from 'http';
 import { UserRoleGuard } from './guards/user-role.guard';
@@ -60,6 +60,21 @@ export class AuthController {
   @RoleProtected(ValidRoles.superUser, ValidRoles.admin) //solucionamos el problema de la linea 59 usando nuestro custom decorator y un enum con los valores permitidos
   @UseGuards(AuthGuard(), UserRoleGuard)
   privateRoute2(@GetUser() user: User) {
+    return {
+      ok: true,
+      user,
+    };
+  }
+
+  /**
+   * Queremos proteger la ruta para cualquier usuario, simplemente @Auth() y ahí haríamos que tenga que tener
+   * el token y que no haya expirado, el token que sea de un usuario de base de datos y que esté activo en la base de datos (isActive: true), que tenga cualquier rol.
+   *
+   * Si queremos autorizar a usuarios con un rol en particular: @Auth( ValidRoles.admin )
+   */
+  @Get('private3')
+  @Auth(ValidRoles.admin)
+  privateRoute3(@GetUser() user: User) {
     return {
       ok: true,
       user,
