@@ -6,15 +6,16 @@ import {
   UseGuards,
   Req,
   Headers,
-  SetMetadata,
+  /* SetMetadata, */
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { AuthGuard } from '@nestjs/passport';
-import { GetUser, RawHeaders } from './decorators';
+import { GetUser, RawHeaders, RoleProtected } from './decorators';
 import { User } from './entities/user.entity';
 import { IncomingHttpHeaders } from 'http';
 import { UserRoleGuard } from './guards/user-role.guard';
+import { ValidRoles } from './interfaces';
 
 @Controller('auth')
 export class AuthController {
@@ -55,8 +56,8 @@ export class AuthController {
   }
 
   @Get('private2')
-  @SetMetadata('roles', ['admin', 'super-user'])
-  //@RoleProtected( ValidRoles.superUser, ValidRoles.admin )
+  //@SetMetadata('roles', ['admin', 'super-user'])  //se usa bastante poco pq pude introducir muchos errores ya que son todos valores hardcodeados que pueden escribirse mal
+  @RoleProtected(ValidRoles.superUser, ValidRoles.admin) //solucionamos el problema de la linea 59 usando nuestro custom decorator y un enum con los valores permitidos
   @UseGuards(AuthGuard(), UserRoleGuard)
   privateRoute2(@GetUser() user: User) {
     return {
