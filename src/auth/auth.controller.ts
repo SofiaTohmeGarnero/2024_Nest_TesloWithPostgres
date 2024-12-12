@@ -8,6 +8,7 @@ import {
   Headers,
   /* SetMetadata, */
 } from '@nestjs/common';
+//import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { CreateUserDto, LoginUserDto } from './dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -17,6 +18,7 @@ import { IncomingHttpHeaders } from 'http';
 import { UserRoleGuard } from './guards/user-role.guard';
 import { ValidRoles } from './interfaces';
 
+//@ApiTags('Auth') //swagger me agregó los tags de cada controlador por defecto, pero si no lo hubiera hecho debería usar este decorador
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
