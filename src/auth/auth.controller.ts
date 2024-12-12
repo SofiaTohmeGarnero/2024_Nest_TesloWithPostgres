@@ -31,6 +31,15 @@ export class AuthController {
     return this.authService.login(loginUserDto);
   }
 
+  /**
+   * Este endpoint es para revalidar el token (devuelve un token nuevo), mientras el actual sea válido
+   */
+  @Get('check-status')
+  @Auth()
+  checkAuthStatus(@GetUser() user: User) {
+    return this.authService.checkAuthStatus(user);
+  }
+
   //Para acceder a este endpoint debo:
   // 1. usar el endpoint de login (o register para un usuario nuevo) y obtener el token
   // 2. ir al endpoint de private > tab Auth > seleccionar Bearer Token > pegar el valor del token obtenido en el paso anterior
