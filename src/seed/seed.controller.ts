@@ -1,14 +1,14 @@
 import { Controller, Get } from '@nestjs/common';
 import { SeedService } from './seed.service';
-import { Auth } from 'src/auth/decorators';
-import { ValidRoles } from 'src/auth/interfaces';
+//import { Auth } from 'src/auth/decorators';
+//import { ValidRoles } from 'src/auth/interfaces';
 
 @Controller('seed')
 export class SeedController {
   constructor(private readonly seedService: SeedService) {}
 
   @Get()
-  @Auth(ValidRoles.admin)
+  //@Auth(ValidRoles.admin) //queda comentado para poder ejecutar el seed sin tener que loguearme con un rol admin
   executeSeed() {
     return this.seedService.runSeed();
   }
