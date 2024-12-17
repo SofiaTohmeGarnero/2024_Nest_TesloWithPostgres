@@ -8,6 +8,8 @@ import {
 import { MessagesWsService } from './messages-ws.service';
 import { Server, Socket } from 'socket.io';
 import { NewMessageDto } from './dto/new-message.dto';
+import { JwtService } from '@nestjs/jwt';
+import { JwtPayload } from 'src/auth/interfaces';
 
 @WebSocketGateway({ cors: true })
 export class MessagesWsGateway
@@ -15,12 +17,25 @@ export class MessagesWsGateway
 {
   @WebSocketServer() wss: Server;
 
-  constructor(private readonly messagesWsService: MessagesWsService) {}
+  constructor(
+    private readonly messagesWsService: MessagesWsService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  handleConnection(client: Socket) {
-    //console.log('Cliente conectado:', client.id );
+  async handleConnection(client: Socket) {
+    //console.log('Cliente conectado:', client );
+    
+    const token = client.handshake.headers.authentication as string;
+    let payload: JwtPayload;
 
-    this.messagesWsService.registerClient(client);
+    try{
+      payload = this.jwtService.verify(token);
+      await this.messagesWsService.registerClient(client, payload.id);
+    }catch(error){
+      client.disconnect();
+      return;
+    }
+    //console.log({payload})
     this.wss.emit(
       'clients-updated',
       this.messagesWsService.getConnectedClients(),
@@ -57,7 +72,7 @@ export class MessagesWsGateway
 
     //! Emite a todos los clientes el mensaje, inclusive al que lo mandó.
     this.wss.emit('message-from-server', {
-      fullName: 'Soy Yo!',
+      fullName: this.messagesWsService.getUserFullName(client.id),
       message: payload.message || 'no-message!!',
     });
   }
