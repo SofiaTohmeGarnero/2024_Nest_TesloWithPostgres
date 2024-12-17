@@ -16,3 +16,4 @@ podman-compose up -d
 ```
 6. Levantar: ```npm run start:dev```
 7. Ejecutar Seed: ```http://localhost:3000/api/seed```
+8. Ver Documentación de la API ```http://localhost:3000/api```
