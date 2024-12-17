@@ -24,14 +24,14 @@ export class MessagesWsGateway
 
   async handleConnection(client: Socket) {
     //console.log('Cliente conectado:', client );
-    
+
     const token = client.handshake.headers.authentication as string;
     let payload: JwtPayload;
 
-    try{
+    try {
       payload = this.jwtService.verify(token);
       await this.messagesWsService.registerClient(client, payload.id);
-    }catch(error){
+    } catch (error) {
       client.disconnect();
       return;
     }
